@@ -52,7 +52,9 @@ func Set_addipfs(stub shim.ChaincodeStubInterface, args []string) (string, error
 	}
 
 	key := args[0]
+	// here-1
 	// logger.Info( "key: " + key )
+
 	value := args[1]
 	// logger.Info( "value: " + value )
 
@@ -60,12 +62,15 @@ func Set_addipfs(stub shim.ChaincodeStubInterface, args []string) (string, error
 	// logger.Info(str_Slice)
 
 	for i, str_Slice := range str_Slice {
-		if i==0 {
-			sender = str_Slice
-		} else if i == 1  {
-			receiver = str_Slice
-		} else if i == 2  {
-			filename = str_Slice
+		switch i {
+			case 0:
+				sender = str_Slice
+			case 1:
+				receiver = str_Slice
+			case 2:
+				filename = str_Slice
+			default:
+				return "", fmt.Errorf("illegal %d", i)
 		}
 	}
 
@@ -75,7 +80,16 @@ func Set_addipfs(stub shim.ChaincodeStubInterface, args []string) (string, error
 	fmt.Println("Add to ipfs: " + filename)
 
 // search with container name (ipfs0)
-	mhash, err := AddIpfs( "ipfs0", "5001", filename)
+
+	ipfs_hostname := os.Getenv("IPFS_HOSTNAME")
+	ipfs_port := os.Getenv("IPFS_PORT")
+
+	if len(ipfs_hostname) == 0 || len(ipfs_port) == 0 {
+		return "", fmt.Errorf("Failed to get IPFS_HOSTNAME and IPFS_PORT from env. Please Set environmet (export IPFS_HOSTNAME=ipfs0, export=IPFS_PORT=5001", key)
+	}
+	mhash, err := AddIpfs( ipfs_hostname, ipfs_port, filename)
+	// mhash, err := AddIpfs( "ipfs0", "5001", filename)
+
 
 	if err != nil {
 		// logger.Info("AddIpfs() error")
@@ -108,6 +122,7 @@ func Get_catipfs(stub shim.ChaincodeStubInterface, args []string) (string, error
 	key :=  args[0]
 
 	// logger.Info( "document number(key):" + key )
+	fmt.Println( "document number(key):" + key )
 
 	value, err := stub.GetState(args[0])
 	if err != nil {
@@ -121,14 +136,17 @@ func Get_catipfs(stub shim.ChaincodeStubInterface, args []string) (string, error
 	// logger.Info(str_Slice)
 
 	for i, str_Slice := range str_Slice {
-		if i==0 {
-			sender = str_Slice
-		} else if i == 1  {
-			receiver = str_Slice
-		} else if i == 2  {
-			filename = str_Slice
-		} else if i == 3 {
-			mhash = str_Slice
+		switch i {
+			case 0:
+				sender = str_Slice
+			case 1:
+				receiver = str_Slice
+			case 2:
+				filename = str_Slice
+			case 3:
+				mhash = str_Slice
+			default:
+				return "", fmt.Errorf("illegal %d", i)
 		}
 	}
 	// logger.Info( "From ledger: key=",  key)
